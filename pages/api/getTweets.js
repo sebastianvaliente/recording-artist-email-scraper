@@ -1,4 +1,4 @@
-import getEmailsFromTweets from "../utils/tweets";
+import getEmailsFromTweets from "../../utils/tweets";
 
 export default async (req, res) => {
   if (!req.headers.dates) return;

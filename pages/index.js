@@ -63,6 +63,7 @@ export default class Home extends Component {
     return (
       <Snackbar
         open={showSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
         autoHideDuration={6000}
         message="Emails copied to clipboard!"
         onClose={() => this.setState({ showSnackbar: false })}

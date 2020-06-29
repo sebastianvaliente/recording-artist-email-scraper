@@ -6,6 +6,8 @@ import axios from "axios";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import DateRangePicker from "rsuite/lib/DateRangePicker";
 import "rsuite/lib/styles/index.less";
+import HowItWorksPopup from "../components/popup";
+
 const { before, afterToday, combine } = DateRangePicker;
 
 const defaultState = {
@@ -98,7 +100,7 @@ export default class Home extends Component {
           {emails.length} emails scraped!
         </h3>
         <CopyToClipboard
-          text={emails.join(",")}
+          text={emails.join("\n")}
           onCopy={() => this.setState({ showSnackbar: true })}
         >
           <Button
@@ -175,6 +177,8 @@ export default class Home extends Component {
           <div>
             <h1 style={{ textAlign: "center", marginBottom: "20px" }}>{HEADER}</h1>
           </div>
+
+          <HowItWorksPopup />
 
           {noDatesAndScrapeNotInitiated && (
             <h4 style={{ textAlign: "center" }}>{SELECT_RANGE}</h4>

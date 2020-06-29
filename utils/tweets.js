@@ -11,16 +11,6 @@ const client = new Twitter({
   access_token_secret: process.env.TWITTER_TOKEN_SECRET
 });
 
-console.log(
-  "tokenes",
-  JSON.stringify({
-    consumer_key: process.env.TWITTER_CONSUMER_KEY,
-    consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-    access_token_key: process.env.TWITTER_AT_KEY,
-    access_token_secret: process.env.TWITTER_TOKEN_SECRET
-  })
-);
-
 const parseEmailsFromTweets = tweets => {
   return tweets
     .map(tweet => {

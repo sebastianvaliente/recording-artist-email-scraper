@@ -1,209 +1,204 @@
-import Head from 'next/head'
+import { Button, Snackbar } from "@material-ui/core";
+import Container from "@material-ui/core/Container";
+import Loader from "react-loader-spinner";
+import { Component } from "react";
+import axios from "axios";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import DateRangePicker from "rsuite/lib/DateRangePicker";
+import "rsuite/lib/styles/index.less";
+const { before, afterToday, combine } = DateRangePicker;
 
-export default function Home() {
-  return (
-    <div className="container">
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+const defaultState = {
+  emails: [],
+  showSnackbar: false,
+  loadingEmails: false,
+  selectedDates: [],
+  emailScrapeInitiated: false,
+  showDatePicker: true,
+  emailsLoaded: false
+};
 
-      <main>
-        <h1 className="title">
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+export default class Home extends Component {
+  constructor() {
+    super();
+    this.state = {
+      ...defaultState
+    };
+  }
 
-        <p className="description">
-          Get started by editing <code>pages/index.js</code>
-        </p>
+  clearState = () => {
+    /* reset date picker */
+    this.setState({ showDatePicker: false }, () => {
+      this.setState({ ...defaultState });
+    });
+  };
 
-        <div className="grid">
-          <a href="https://nextjs.org/docs" className="card">
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+  determineContext = () => {
+    const { selectedDates, emailScrapeInitiated } = this.state;
+    return {
+      noDatesAndScrapeNotInitiated: selectedDates.length <= 0 && !emailScrapeInitiated,
+      datesSelectedButScrapeNotInitiated:
+        selectedDates.length > 0 && !emailScrapeInitiated
+    };
+  };
 
-          <a href="https://nextjs.org/learn" className="card">
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+  scrapeEmails = async () => {
+    const { selectedDates } = this.state;
+    this.setState({ emailScrapeInitiated: true });
+    try {
+      const { emails } = (
+        await axios.get("/api/getTweets", {
+          headers: { dates: JSON.stringify(selectedDates) }
+        })
+      ).data;
+      this.setState({ emails, emailsLoaded: true });
+    } catch (e) {
+      console.error("Error when fetching emails", e);
+    }
+  };
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="card"
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
+  snackbar = () => {
+    /* snackbar notif that appears after copy to clipboard */
+    const { showSnackbar } = this.state;
+    return (
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={6000}
+        message="Emails copied to clipboard!"
+        onClose={() => this.setState({ showSnackbar: false })}
+      />
+    );
+  };
 
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="card"
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
+  datePicker = () => {
+    const { showDatePicker } = this.state;
+    if (!showDatePicker) return null;
+    const ThirtyDaysBeforeToday = new Date().setDate(new Date().getDate() - 30);
+    return (
+      <DateRangePicker
+        style={{ padding: "40px 30%", display: "block", paddingTop: "10px" }}
+        onOk={selectedDates => {
+          this.setState({ selectedDates });
+        }}
+        ranges={[]}
+        showOneCalendar
+        disabledDate={combine(afterToday(), before(ThirtyDaysBeforeToday))}
+      />
+    );
+  };
 
-      <footer>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+  copyToClipboardButton = () => {
+    const { emails } = this.state;
+    if (emails.length <= 0) return null;
+
+    return (
+      <>
+        <h3 style={{ textAlign: "center", marginBottom: "10px" }}>
+          {emails.length} emails scraped!
+        </h3>
+        <CopyToClipboard
+          text={emails.join(",")}
+          onCopy={() => this.setState({ showSnackbar: true })}
         >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="logo" />
-        </a>
-      </footer>
+          <Button
+            variant="contained"
+            color="primary"
+            style={{ display: "block", margin: "0 auto", marginBottom: "1em" }}
+          >
+            Copy Emails To clipboard
+          </Button>
+        </CopyToClipboard>
+      </>
+    );
+  };
 
-      <style jsx>{`
-        .container {
-          min-height: 100vh;
-          padding: 0 0.5rem;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
+  loader = () => {
+    const { LOADING } = Home.constants;
+    return (
+      <>
+        <h4 style={{ textAlign: "center", marginBottom: "25px" }}>{LOADING}</h4>
+        <div style={{ display: "flex" }}>
+          <Loader
+            style={{ display: "block", margin: "0 auto" }}
+            type="Grid"
+            color="#3f51b5"
+            height={100}
+            width={100}
+          />
+        </div>
+      </>
+    );
+  };
 
-        main {
-          padding: 5rem 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
+  actionButtonController = () => {
+    const { emailScrapeInitiated, emails } = this.state;
+    const { datesSelectedButScrapeNotInitiated } = this.determineContext();
+    const { SCRAPE_BTN_TEXT, RESCRAPE_BTN_TEXT } = Home.constants;
 
-        footer {
-          width: 100%;
-          height: 100px;
-          border-top: 1px solid #eaeaea;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
+    return (
+      <>
+        {datesSelectedButScrapeNotInitiated && (
+          <Button
+            onClick={this.scrapeEmails}
+            variant="contained"
+            color="primary"
+            style={{ display: "block", margin: "0 auto" }}
+          >
+            {SCRAPE_BTN_TEXT}
+          </Button>
+        )}
 
-        footer img {
-          margin-left: 0.5rem;
-        }
+        {emailScrapeInitiated && emails.length > 0 && (
+          <Button
+            onClick={this.clearState}
+            variant="contained"
+            color="primary"
+            style={{ display: "block", margin: "0 auto" }}
+          >
+            {RESCRAPE_BTN_TEXT}
+          </Button>
+        )}
+      </>
+    );
+  };
 
-        footer a {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
+  render() {
+    const { emailScrapeInitiated, emailsLoaded } = this.state;
+    const { HEADER } = Home.constants;
+    const { noDatesAndScrapeNotInitiated } = this.determineContext();
+    const { SELECT_RANGE } = Home.constants;
 
-        a {
-          color: inherit;
-          text-decoration: none;
-        }
+    return (
+      <div style={{ margin: "10em 0" }}>
+        <Container>
+          <div>
+            <h1 style={{ textAlign: "center", marginBottom: "20px" }}>{HEADER}</h1>
+          </div>
 
-        .title a {
-          color: #0070f3;
-          text-decoration: none;
-        }
+          {noDatesAndScrapeNotInitiated && (
+            <h4 style={{ textAlign: "center" }}>{SELECT_RANGE}</h4>
+          )}
 
-        .title a:hover,
-        .title a:focus,
-        .title a:active {
-          text-decoration: underline;
-        }
+          {!emailScrapeInitiated && <this.datePicker />}
 
-        .title {
-          margin: 0;
-          line-height: 1.15;
-          font-size: 4rem;
-        }
+          {emailScrapeInitiated && !emailsLoaded && <this.loader />}
 
-        .title,
-        .description {
-          text-align: center;
-        }
+          <this.copyToClipboardButton />
 
-        .description {
-          line-height: 1.5;
-          font-size: 1.5rem;
-        }
+          <this.actionButtonController />
 
-        code {
-          background: #fafafa;
-          border-radius: 5px;
-          padding: 0.75rem;
-          font-size: 1.1rem;
-          font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
-            DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-        }
-
-        .grid {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-wrap: wrap;
-
-          max-width: 800px;
-          margin-top: 3rem;
-        }
-
-        .card {
-          margin: 1rem;
-          flex-basis: 45%;
-          padding: 1.5rem;
-          text-align: left;
-          color: inherit;
-          text-decoration: none;
-          border: 1px solid #eaeaea;
-          border-radius: 10px;
-          transition: color 0.15s ease, border-color 0.15s ease;
-        }
-
-        .card:hover,
-        .card:focus,
-        .card:active {
-          color: #0070f3;
-          border-color: #0070f3;
-        }
-
-        .card h3 {
-          margin: 0 0 1rem 0;
-          font-size: 1.5rem;
-        }
-
-        .card p {
-          margin: 0;
-          font-size: 1.25rem;
-          line-height: 1.5;
-        }
-
-        .logo {
-          height: 1em;
-        }
-
-        @media (max-width: 600px) {
-          .grid {
-            width: 100%;
-            flex-direction: column;
-          }
-        }
-      `}</style>
-
-      <style jsx global>{`
-        html,
-        body {
-          padding: 0;
-          margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-            Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-            sans-serif;
-        }
-
-        * {
-          box-sizing: border-box;
-        }
-      `}</style>
-    </div>
-  )
+          <this.snackbar />
+        </Container>
+      </div>
+    );
+  }
 }
+
+Home.constants = {
+  HEADER: "ARTIST EMAIL SCRAPER FOR TWITTER",
+  SCRAPE_BTN_TEXT: "SCRAPE EMAILS",
+  RESCRAPE_BTN_TEXT: "SCRAPE AGAIN",
+  SELECT_RANGE: "Select a range of dates to collect emails from.",
+  LOADING:
+    "Fetching tweets where artists asks for beats and extracting emails from them..."
+};

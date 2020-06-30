@@ -7,6 +7,7 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import DateRangePicker from "rsuite/lib/DateRangePicker";
 import "rsuite/lib/styles/index.less";
 import HowItWorksPopup from "../components/popup";
+import Head from "next/head";
 
 const { before, afterToday, combine } = DateRangePicker;
 
@@ -173,6 +174,9 @@ export default class Home extends Component {
 
     return (
       <div style={{ margin: "10em 0" }}>
+        <Head>
+          <title>SendBeatsToEmailScrape</title>
+        </Head>
         <Container>
           <div>
             <h1 style={{ textAlign: "center", marginBottom: "20px" }}>{HEADER}</h1>
@@ -200,7 +204,7 @@ export default class Home extends Component {
 }
 
 Home.constants = {
-  HEADER: "ARTIST EMAIL SCRAPER FOR TWITTER",
+  HEADER: `"send beats to" email scrape`,
   SCRAPE_BTN_TEXT: "SCRAPE EMAILS",
   RESCRAPE_BTN_TEXT: "SCRAPE AGAIN",
   SELECT_RANGE: "Select a range of dates to collect emails from.",

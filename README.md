@@ -1,5 +1,3 @@
-sendbeatsto.vercel.app/
-
 ## How it works.
 In short, we run a search for tweets with "send beats to" as the query. Then, all the emails are extracted from those tweets and returned to the user.
 

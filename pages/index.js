@@ -166,6 +166,38 @@ export default class Home extends Component {
     );
   };
 
+  paypalDonateBtn = () => (
+    <div>
+      <h4 style={{ display: "block", textAlign: "center", margin: "10em 0 2em 0" }}>
+        If you find this useful, consider donating :)
+      </h4>
+      <form
+        action="https://www.paypal.com/cgi-bin/webscr"
+        method="post"
+        target="_top"
+        style={{ display: "table", margin: "0 auto" }}
+      >
+        <input type="hidden" name="cmd" value="_s-xclick" />
+        <input type="hidden" name="hosted_button_id" value="EQ3J9MKELCKBL" />
+        <input
+          type="image"
+          src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif"
+          border="0"
+          name="submit"
+          title="PayPal - The safer, easier way to pay online!"
+          alt="Donate with PayPal button"
+        />
+        <img
+          alt=""
+          border="0"
+          src="https://www.paypal.com/en_CA/i/scr/pixel.gif"
+          width="1"
+          height="1"
+        />
+      </form>
+    </div>
+  );
+
   render() {
     const { emailScrapeInitiated, emailsLoaded } = this.state;
     const { HEADER } = Home.constants;
@@ -195,6 +227,8 @@ export default class Home extends Component {
           <this.copyToClipboardButton />
 
           <this.actionButtonController />
+
+          <this.paypalDonateBtn />
 
           <this.snackbar />
         </Container>

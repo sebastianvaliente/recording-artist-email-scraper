@@ -1,30 +1,9 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## How it works.
+In short, we run a search for tweets with "send beats to" as the query. Then, all the emails are extracted from those tweets and returned to the user.
 
-## Getting Started
+## How to use.
+Simply select a range of dates, and click "Scrape Emails". When it's done, you'll have the option to copy all the retrieved emails to clipboard.
 
-First, run the development server:
+A couple things to note: The Twitter API only allows you to retrieve a certain amount of tweets at a time. For that reason, you can only select a date range as far as 30 days from today.
 
-```bash
-npm run dev
-# or
-yarn dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/import?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+You should keep your own records of the emails you retrieve so you can filter the duplicates (assuming you use this more than once.) After you copy the emails, you can use "Paste Special" in Google Sheets and it'll paste each email into a cell.
